@@ -78,7 +78,7 @@
       </div>
     </header>
 
-    <!-- 表頭（新增：契約完工日、展延天數與工期計算） -->
+    <!-- 表頭（含日曆天工期） -->
     <section class="card noprint" id="head-card">
       <div class="grid g3">
         <div><label>填表日期</label><input id="f-date" type="date" /></div>
@@ -95,14 +95,14 @@
         <div><label>契約完工日</label><input id="f-end" type="date" /></div>
       </div>
       <div class="grid g3" style="margin-top:6px">
-        <div><label>展延天數（**日曆天**，累計）</label><input id="f-ext" type="number" min="0" value="0" /></div>
+        <div><label>展延天數（<b>日曆天</b>，累計）</label><input id="f-ext" type="number" min="0" value="0" /></div>
         <div><label>預定進度（%）</label><input id="f-pct-plan" type="number" inputmode="decimal" /></div>
         <div><label>實際進度（%）（自動）</label><input id="f-pct-actual" type="number" inputmode="decimal" readonly /></div>
       </div>
       <div class="grid g3" style="margin-top:6px">
-        <div><label>工期總**日曆天**（自動）</label><input id="f-days-total" type="number" readonly /></div>
-        <div><label>已過**日曆天**（自動）</label><input id="f-days-elapse" type="number" readonly /></div>
-        <div><label>剩餘**日曆天**（自動）</label><input id="f-days-left" type="number" readonly /></div>
+        <div><label>工期總<b>日曆天</b>（自動）</label><input id="f-days-total" type="number" readonly /></div>
+        <div><label>已過<b>日曆天</b>（自動）</label><input id="f-days-elapse" type="number" readonly /></div>
+        <div><label>剩餘<b>日曆天</b>（自動）</label><input id="f-days-left" type="number" readonly /></div>
       </div>
     </section>
 
@@ -112,7 +112,7 @@
       <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:8px">
         <label class="btn" for="bidFile">⬆️ 匯入標單（CSV 或 JSON）</label>
         <input id="bidFile" type="file" accept=".csv,application/json" style="display:none" />
-        <span class="muted">CSV 欄位：施工項目, 單位, 契約數量（可從 Excel 貼上存成 CSV）</span>
+        <span class="muted">CSV 欄位：施工項目, 單位, 契約數量（可從 Excel 另存 CSV）</span>
       </div>
       <div class="row" style="margin-top:8px;flex-wrap:wrap">
         <select id="bid-select" style="min-width:280px"></select>
@@ -134,7 +134,9 @@
       </table>
       <button class="iconbtn" data-add-row="tbl-work">＋ 新增列</button>
       <div class="grid" style="margin-top:6px">
-        <textarea id="f-inspect" placeholder="＊查驗結果或監造查驗工項：\nA.\nB."></textarea>
+        <textarea id="f-inspect" placeholder="＊查驗結果或監造查驗工項：
+A.
+B."></textarea>
       </div>
     </section>
 
@@ -302,13 +304,15 @@
 
     $('bidFile').addEventListener('change',async(e)=>{const f=e.target.files?.[0]; if(!f) return; const txt=await f.text(); try{
       let arr=[]; if(f.type==='application/json' || txt.trim().startsWith('[')){arr=JSON.parse(txt)} else { // CSV parser
-        arr=txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).map(line=>{const parts=line.split(','); return {item:parts[0]?.trim()||'', unit:parts[1]?.trim()||'', qty:num(parts[2])}})
+        arr=txt.split(/?
+/).map(s=>s.trim()).filter(Boolean).map(line=>{const parts=line.split(','); return {item:parts[0]?.trim()||'', unit:parts[1]?.trim()||'', qty:num(parts[2])}})
       }
       arr=arr.filter(x=>x.item); saveBid(arr); renderBidSelect(); alert('標單匯入完成：'+arr.length+' 項');
     }catch(err){alert('匯入失敗：'+err.message)} e.target.value=''})
 
     /* ====== 預定進度：匯入 CSV(date,plan) + 自動帶入 ====== */
-    $('planFile').addEventListener('change',async(e)=>{const f=e.target.files?.[0]; if(!f) return; const txt=await f.text(); try{ let obj={}; if(f.type==='application/json'||txt.trim().startsWith('{')){obj=JSON.parse(txt)} else { txt.split(/\r?\n/).forEach(line=>{line=line.trim(); if(!line) return; const [d,p]=line.split(','); if(d && p!==undefined) obj[d.trim()]=Number(p)}) } savePlan(obj); alert('預定進度匯入完成（'+Object.keys(obj).length+' 筆）'); autoFillPlan() }catch(err){alert('匯入失敗：'+err.message)} e.target.value=''} )
+    $('planFile').addEventListener('change',async(e)=>{const f=e.target.files?.[0]; if(!f) return; const txt=await f.text(); try{ let obj={}; if(f.type==='application/json'||txt.trim().startsWith('{')){obj=JSON.parse(txt)} else { txt.split(/?
+/).forEach(line=>{line=line.trim(); if(!line) return; const [d,p]=line.split(','); if(d && p!==undefined) obj[d.trim()]=Number(p)}) } savePlan(obj); alert('預定進度匯入完成（'+Object.keys(obj).length+' 筆）'); autoFillPlan() }catch(err){alert('匯入失敗：'+err.message)} e.target.value=''} )
 
     function autoFillPlan(){const plan=loadPlan(); const d=$('f-date').value; if(plan[d]!=null){$('f-pct-plan').value=plan[d]} }
 
@@ -352,15 +356,14 @@
       $('f-days-total').value= total; $('f-days-elapse').value= elapse; $('f-days-left').value= left;
     }
 
-    ['f-date','f-start','f-end','f-ext'].forEach(id=> $(id)?.addEventListener('change',()=>{autoFillPlan(); computeDurations(); autoFillAllCumulative(); calcActualPct()})),'f-start','f-end','f-ext'].forEach(id=> $(id)?.addEventListener('change',()=>{autoFillPlan(); computeDurations(); autoFillAllCumulative(); calcActualPct()}))
+    ['f-date','f-start','f-end','f-ext'].forEach(id=> $(id)?.addEventListener('change',()=>{autoFillPlan(); computeDurations(); autoFillAllCumulative(); calcActualPct()}))
 
     /* ====== 自動累計（同名工項匯總到當日） ====== */
     function cumulativeUpTo(date,item){ const db=loadAll(); let sum=0; for(const d of Object.keys(db)){ if(d>date) continue; const rows=db[d].work||[]; rows.forEach(r=>{ if((r[0]||'')===item){ sum += num(r[3]) } }) } return sum }
-    function autoFillCumulativeForRow(tr){ const item=tr.querySelector('input[data-col="0"]').value; if(!item) return; const today=$('f-date').value; const todayQty= num(tr.querySelector('input[data-col="3"]').value); const before= cumulativeUpTo(today, item) - todayQty; // 其他列今天也可能有相同項目，這裡簡化
-      const cum = before + todayQty; tr.querySelector('input[data-col="4"]').value = String(cum) }
+    function autoFillCumulativeForRow(tr){ const item=tr.querySelector('input[data-col="0"]').value; if(!item) return; const today=$('f-date').value; const todayQty= num(tr.querySelector('input[data-col="3"]').value); const before= cumulativeUpTo(today, item) - todayQty; const cum = before + todayQty; tr.querySelector('input[data-col="4"]').value = String(cum) }
     function autoFillAllCumulative(){ document.querySelectorAll('#tbl-work tbody tr').forEach(autoFillCumulativeForRow) }
 
-    /* ====== 實際進度（Σ累計 / Σ契約）×100 ＊以數量作為比重近似估算 ====== */
+    /* ====== 實際進度（Σ累計 / Σ契約）×100 近似估算 ====== */
     function calcActualPct(){ let sumContract=0, sumCum=0; document.querySelectorAll('#tbl-work tbody tr').forEach(tr=>{ const c=num(tr.querySelector('input[data-col="2"]').value); const cum=num(tr.querySelector('input[data-col="4"]').value); if(c>0){ sumContract+=c; sumCum+=Math.min(cum,c) } }); const pct = sumContract>0 ? (sumCum/sumContract*100) : 0; $('f-pct-actual').value = pct.toFixed(2); }
 
     // 清單 ======
@@ -386,7 +389,8 @@
       <table class="tbl"><tr><th colspan="6">一、依核定計畫實施施工概況（含約定之查驗施工項目及完成數量等）</th></tr>
         <tr><th>施工項目</th><th>單位</th><th>契約數量</th><th>本日完成數量</th><th>累計完成數量</th><th>備註</th></tr>
         ${ (it.work||[]).map(r=>`<tr>${r.slice(0,6).map(c=>`<td>${escapeHtml(c||'')}</td>`).join('')}</tr>`).join('') }
-        <tr><td colspan="6">＊查驗結果或監造查驗工項：<br>${escapeHtml(it.inspect||'').replace(/\n/g,'<br>')}</td></tr>
+        <tr><td colspan="6">＊查驗結果或監造查驗工項：<br>${escapeHtml(it.inspect||'').replace(/
+/g,'<br>')}</td></tr>
       </table>
 
       <table class="tbl"><tr><th colspan="6">二、工地材料管理概況（含約定之需要材料使用概況及數量等）</th></tr>
@@ -409,16 +413,20 @@
         (1) 高風險施工場所安全查核（含施工架、防墜及危害告知）：${box(c.s5_1_yes)}有　${box(c.s5_1_no)}無<br>
         (2) 勞工安全衛生教育訓練及預防措施實施狀況：${box(c.s5_2_yes)}有　${box(c.s5_2_no)}無<br>
         (3) 機具設備使用與防護裝置：${box(c.s5_3_yes)}有　${box(c.s5_3_no)}無<br>
-        （備註）${escapeHtml(it.s5_note||'').replace(/\n/g,'<br>')}
+        （備註）${escapeHtml(it.s5_note||'').replace(/
+/g,'<br>')}
       </td></tr></table>
 
       <table class="tbl"><tr><th style="width:40%">六、施工環境設備改善事項（含工地環境衛生、排水、防塵、防噪、防震等措施及改善結果）</th><td>
         ${box(c.s6_yes)}有　${box(c.s6_no)}無<br>
-        （備註）${escapeHtml(it.s6_note||'').replace(/\n/g,'<br>')}
+        （備註）${escapeHtml(it.s6_note||'').replace(/
+/g,'<br>')}
       </td></tr></table>
 
-      <table class="tbl"><tr><th style="width:35%">七、通知協商與稽察事項</th><td>${escapeHtml(it.audit||'').replace(/\n/g,'<br>')}</td></tr></table>
-      <table class="tbl"><tr><th style="width:35%">八、重要事項（附件四）</th><td>${escapeHtml(it.important||'').replace(/\n/g,'<br>')}</td></tr></table>
+      <table class="tbl"><tr><th style="width:35%">七、通知協商與稽察事項</th><td>${escapeHtml(it.audit||'').replace(/
+/g,'<br>')}</td></tr></table>
+      <table class="tbl"><tr><th style="width:35%">八、重要事項（附件四）</th><td>${escapeHtml(it.important||'').replace(/
+/g,'<br>')}</td></tr></table>
 
       <div class="sign1"><div>工地主任 簽名/署章</div></div>
     </div>`; root.appendChild(page)}); root.style.display='block'; window.print(); setTimeout(()=>{root.style.display='none'; root.innerHTML=''},100)}
