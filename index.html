@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>公共工程施工日誌（附表四｜Web版）</title>
 <style>
 :root{--ink:#0f172a;--muted:#475569;--line:#e2e8f0;--brand:#0284c7}
-html,body{height:100%}body{margin:0;background:#fff;color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",Segoe UI,Roboto,Helvetica,Arial}
+html,body{height:100%}body{margin:0;background:#fff;color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",Segoe UI,Roboto,Arial}
 .app{max-width:1100px;margin:24px auto 96px;padding:0 16px}
 h1{font-size:20px;margin:0}.sub{color:var(--muted);font-size:12px}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap}
@@ -16,13 +16,12 @@ h1{font-size:20px;margin:0}.sub{color:var(--muted);font-size:12px}
 .card{border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 1px 0 rgba(0,0,0,.04);margin-top:10px}
 .grid{display:grid;gap:8px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}
 label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
-input[type=text],input[type=date],input[type=number],select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;background:#fff}
 textarea{min-height:80px;resize:vertical}
 table{width:100%;border-collapse:separate;border-spacing:0 8px}th{font-size:12px;color:var(--muted);text-align:left}
-.row{display:flex;gap:10px;align-items:center}.muted{color:var(--muted)}.hr{height:1px;background:#e5e7eb;margin:10px 0}
-.list-row{background:#f8fafc;border:1px solid var(--line)}.list-row td{padding:8px 10px}
 .iconbtn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 8px;cursor:pointer}
-.dock{position:sticky;bottom:0;z-index:20;background:#ffffffcc;backdrop-filter:saturate(180%) blur(8px);padding:10px 8px;border-top:1px solid var(--line)}
+.list-row td{padding:8px 10px}
+.dock{position:sticky;bottom:0;z-index:20;background:#ffffffcc;backdrop-filter:saturate(180%) blur(8px);padding:10px;border-top:1px solid var(--line)}
 @media (max-width:768px){.app{max-width:100%;margin:8px auto 120px;padding:0 10px}h1{font-size:18px}.g2,.g3{grid-template-columns:1fr}
 .btn{padding:12px 14px;font-size:16px;border-radius:12px}.iconbtn{padding:10px 12px;font-size:16px;border-radius:12px}
 input,select,textarea{font-size:16px;padding:12px;border-radius:12px}}
@@ -33,18 +32,14 @@ input,select,textarea{font-size:16px;padding:12px;border-radius:12px}}
 </head>
 <body>
 <div class="app">
-<header class="row noprint" style="justify-content:space-between;align-items:flex-start">
-  <div>
-    <h1>公共工程施工日誌（附表四）</h1>
-    <div class="sub">完全依表格原文字；本機儲存；可匯出/匯入；A4列印</div>
-  </div>
+<header class="noprint" style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+  <div><h1>公共工程施工日誌（附表四）</h1><div class="sub">完全依附表四原文；本機儲存；可匯出/匯入；A4列印</div></div>
   <div class="toolbar dock">
     <button class="btn" id="btn-new">＋ 新增/清空</button>
     <button class="btn primary" id="btn-save">💾 儲存本日</button>
     <button class="btn" id="btn-list">📚 清單</button>
     <button class="btn" id="btn-export">⬇️ 匯出JSON</button>
-    <label class="btn" for="importFile">⬆️ 匯入JSON</label>
-    <input id="importFile" type="file" accept="application/json" style="display:none">
+    <label class="btn" for="importFile">⬆️ 匯入JSON</label><input id="importFile" type="file" accept="application/json" style="display:none">
     <button class="btn warn" id="btn-print">🖨️ 列印本月</button>
   </div>
 </header>
@@ -77,15 +72,15 @@ input,select,textarea{font-size:16px;padding:12px;border-radius:12px}}
 
 <section class="card noprint" id="bid-card">
   <strong>📋 標單工項匯入（CSV/JSON）</strong>
-  <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:8px">
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
     <label class="btn" for="bidFile">⬆️ 匯入標單（CSV 或 JSON）</label>
     <input id="bidFile" type="file" accept=".csv,application/json" style="display:none">
-    <span class="muted">CSV 欄位：施工項目, 單位, 契約數量（可從 Excel 另存 CSV）</span>
+    <span class="sub">CSV 欄位：施工項目, 單位, 契約數量</span>
   </div>
-  <div class="row" style="margin-top:8px;flex-wrap:wrap">
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
     <select id="bid-select" style="min-width:280px"></select>
     <button class="btn" id="btn-add-bid">＋ 加入至第「一」表格</button>
-    <span class="muted" id="bid-count"></span>
+    <span class="sub" id="bid-count"></span>
   </div>
 </section>
 
@@ -124,7 +119,7 @@ input,select,textarea{font-size:16px;padding:12px;border-radius:12px}}
 
 <section class="card noprint">
   <strong>四、本日施工項目是否有須依「營造業專業工程特定施工項目應置之技術士種類、比率或人數標準表」規定應設置技術士之專業工程：□有 □無（此項如勾選”有”，則應填寫後附「公共工程施工日誌之技術士簽章表」）</strong>
-  <div class="row" style="margin-top:6px">
+  <div style="display:flex;gap:16px;margin-top:6px">
     <label><input type="checkbox" id="tech_yes"> 有</label>
     <label><input type="checkbox" id="tech_no"> 無</label>
   </div>
@@ -151,16 +146,16 @@ input,select,textarea{font-size:16px;padding:12px;border-radius:12px}}
 </section>
 
 <section class="card noprint" id="list-card">
-  <div class="row" style="justify-content:space-between">
-    <div class="row" style="gap:8px"><strong>已存記錄</strong><span class="muted" id="list-count"></span></div>
-    <div class="row" style="gap:8px">
-      <input type="month" id="month-filter" />
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div><strong>已存記錄</strong> <span class="sub" id="list-count"></span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input type="month" id="month-filter">
       <label class="btn" for="planFile">⬆️ 匯入預定進度（CSV：date,plan%）</label>
-      <input id="planFile" type="file" accept=".csv,application/json" style="display:none" />
+      <input id="planFile" type="file" accept=".csv,application/json" style="display:none">
       <button class="btn" id="btn-del-month">刪除本月全部</button>
     </div>
   </div>
-  <div class="hr"></div>
+  <div style="height:1px;background:#e5e7eb;margin:10px 0"></div>
   <table>
     <thead><tr><th style="width:110px">日期</th><th>工程名稱</th><th>天氣</th><th style="width:180px">動作</th></tr></thead>
     <tbody id="list-body"></tbody>
@@ -176,13 +171,15 @@ input,select,textarea{font-size:16px;padding:12px;border-radius:12px}}
 
 <script>
 const $=id=>document.getElementById(id)
-const key='ce-daily-v2', keyBid='ce-bid-v1', keyPlan='ce-plan-v1'
+const key='ce-daily-v3', keyBid='ce-bid-v1', keyPlan='ce-plan-v1'
 const todayISO=()=> new Date().toISOString().slice(0,10)
+
 const loadAll=()=>{try{return JSON.parse(localStorage.getItem(key)||'{}')}catch(e){return {}}}
 const saveAll=db=>localStorage.setItem(key,JSON.stringify(db))
 const getEntry=d=>loadAll()[d]
 const saveEntry=e=>{const db=loadAll(); db[e.date]=e; saveAll(db)}
 const delEntry=d=>{const db=loadAll(); delete db[d]; saveAll(db)}
+
 const loadBid=()=>{try{return JSON.parse(localStorage.getItem(keyBid)||'[]')}catch(e){return []}}
 const saveBid=list=>localStorage.setItem(keyBid,JSON.stringify(list||[]))
 const loadPlan=()=>{try{return JSON.parse(localStorage.getItem(keyPlan)||'{}')}catch(e){return {}}}
@@ -248,15 +245,24 @@ function autoFillAllCumulative(){ document.querySelectorAll('#tbl-work tbody tr'
 function calcActualPct(){ let sumContract=0, sumCum=0; document.querySelectorAll('#tbl-work tbody tr').forEach(tr=>{ const c=num(tr.querySelector('input[data-col="2"]').value); const cum=num(tr.querySelector('input[data-col="4"]').value); if(c>0){ sumContract+=c; sumCum+=Math.min(cum,c) } }); const pct = sumContract>0 ? (sumCum/sumContract*100) : 0; $('f-pct-actual').value = pct.toFixed(2); }
 
 // 清單
-function renderList(){const m=$('month-filter').value||''; const arr=listEntries(m); $('list-count').textContent=`（${arr.length} 筆）`; const tb=$('list-body'); tb.innerHTML=''; for(const it of arr){const tr=document.createElement('tr'); tr.className='list-row'; tr.innerHTML=`<td>${it.date}</td><td>${escapeHtml(it.project||'')}</td><td>${escapeHtml(it.wAm||'')}/${escapeHtml(it.wPm||'')}</td><td><div class="row"><button class="btn" data-act="edit" data-date="${it.date}">編輯</button><button class="btn" data-act="copy" data-date="${it.date}">複製到今日</button><button class="btn" data-act="del" data-date="${it.date}">刪除</button></div></td>`; tb.appendChild(tr)}}
-document.addEventListener('click',(e)=>{const b=e.target.closest('button'); if(!b) return; if(!b.dataset.act) return; const d=b.dataset.date; const act=b.dataset.act; const data=getEntry(d); if(act==='edit'&&data){setForm(data); window.scrollTo({top:0,behavior:'smooth'})} if(act==='copy'&&data){const t=todayISO(); setForm({...data,date:t})} if(act==='del'){ if(confirm(`確定刪除 ${d} 的記錄？`)){delEntry(d); renderList()} } })
+function renderList(){const m=$('month-filter').value||''; const arr=listEntries(m); $('list-count').textContent=`（${arr.length} 筆）`; const tb=$('list-body'); tb.innerHTML=''; 
+  for(const it of arr){const tr=document.createElement('tr'); tr.className='list-row'; tr.innerHTML=`
+    <td>${it.date}</td><td>${escapeHtml(it.project||'')}</td><td>${escapeHtml(it.wAm||'')}/${escapeHtml(it.wPm||'')}</td>
+    <td><button class="btn" data-act="edit" data-date="${it.date}">編輯</button>
+        <button class="btn" data-act="copy" data-date="${it.date}">複製到今日</button>
+        <button class="btn" data-act="del" data-date="${it.date}">刪除</button></td>`; tb.appendChild(tr)}
+}
+document.addEventListener('click',(e)=>{const b=e.target.closest('button'); if(!b) return; const d=b.dataset.date; const act=b.dataset.act; const data=getEntry(d);
+  if(act==='edit'&&data){setForm(data); window.scrollTo({top:0,behavior:'smooth'})}
+  if(act==='copy'&&data){const t=todayISO(); setForm({...data,date:t})}
+  if(act==='del'){ if(confirm(`確定刪除 ${d} 的記錄？`)){delEntry(d); renderList()} }})
 $('btn-del-month').addEventListener('click',()=>{const m=$('month-filter').value; if(!m) return alert('請先選擇月份'); const arr=listEntries(m); if(arr.length===0) return alert('本月無資料'); if(confirm(`確定刪除 ${m} 的 ${arr.length} 筆記錄？`)){const db=loadAll(); arr.forEach(it=>delete db[it.date]); saveAll(db); renderList()}})
 
 // 匯出/匯入
 $('btn-export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(loadAll(),null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`施工日誌_${todayISO()}.json`; a.click(); URL.revokeObjectURL(url)})
 $('importFile').addEventListener('change',async(e)=>{const f=e.target.files?.[0]; if(!f) return; const txt=await f.text(); try{const data=JSON.parse(txt); if(!data||typeof data!=='object') throw new Error('格式錯誤'); const db=loadAll(); Object.assign(db,data); saveAll(db); alert('匯入完成'); renderList()}catch(err){alert('匯入失敗：'+err.message)} e.target.value=''} )
 
-// 列印（第6、7標題同步使用原文）
+// 列印（第5、6、7標題為原文）
 function box(v){return v?'☑':'□'}
 function buildPrintMonth(month){
   const arr=listEntries(month); if(arr.length===0){alert('本月沒有資料可列印'); return}
