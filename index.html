@@ -127,7 +127,26 @@ input,select,textarea{font-size:16px;padding:12px;border-radius:12px}}
 
 <section class="card noprint">
   <strong>五、工地職業安全衛生事項之督導、公共環境與安全之維護及其他工地行政事務：</strong>
-  <textarea id="sec5"></textarea>
+  <div style="margin-top:6px">
+    <div>（一）施工前檢查事項：</div>
+    <div style="margin-left:1em;margin-top:6px">
+      <div>1. 施工前教育（含工地預防災變及危害告知）：
+        <label><input type="checkbox" id="s5_1_yes"> 有</label>
+        <label><input type="checkbox" id="s5_1_no"> 無</label>
+      </div>
+      <div style="margin-top:6px">2. 環保衛生清潔是否按環保（或其他需清除）資料及安全衛生教育訓練紀錄：
+        <label><input type="checkbox" id="s5_2_yes"> 有</label>
+        <label><input type="checkbox" id="s5_2_no"> 無</label>
+        <label><input type="checkbox" id="s5_2_prog"> 繼續推動</label>
+      </div>
+      <div style="margin-top:6px">3. 檢查第 1 個人防護具：
+        <label><input type="checkbox" id="s5_3_yes"> 有</label>
+        <label><input type="checkbox" id="s5_3_no"> 無</label>
+      </div>
+    </div>
+    <div style="margin-top:8px">（二）其他事項：</div>
+    <textarea id="sec5_other" placeholder=""></textarea>
+  </div>
 </section>
 
 <section class="card noprint">
@@ -171,7 +190,7 @@ input,select,textarea{font-size:16px;padding:12px;border-radius:12px}}
 
 <script>
 const $=id=>document.getElementById(id)
-const key='ce-daily-v3', keyBid='ce-bid-v1', keyPlan='ce-plan-v1'
+const key='ce-daily-v4', keyBid='ce-bid-v1', keyPlan='ce-plan-v1'
 const todayISO=()=> new Date().toISOString().slice(0,10)
 
 const loadAll=()=>{try{return JSON.parse(localStorage.getItem(key)||'{}')}catch(e){return {}}}
@@ -221,14 +240,22 @@ function setForm(entry){
   $('f-start').value=entry?.start||''; $('f-end').value=entry?.end||''; $('f-ext').value=entry?.ext||0;
   $('f-pct-plan').value=entry?.pctPlan||''; $('f-pct-actual').value=entry?.pctActual||'';
   setTable('tbl-work', entry?.work||[]); setTable('tbl-mat', entry?.mat||[]); setTable('tbl-lab-eq', entry?.labEq||[]);
-  $('sec5').value=entry?.sec5||''; $('sec6').value=entry?.sec6||''; $('sec7').value=entry?.sec7||''; $('sec8').value=entry?.sec8||'';
+  $('s5_1_yes').checked=entry?.s5_1_yes||false; $('s5_1_no').checked=entry?.s5_1_no||false;
+  $('s5_2_yes').checked=entry?.s5_2_yes||false; $('s5_2_no').checked=entry?.s5_2_no||false; $('s5_2_prog').checked=entry?.s5_2_prog||false;
+  $('s5_3_yes').checked=entry?.s5_3_yes||false; $('s5_3_no').checked=entry?.s5_3_no||false;
+  $('sec5_other').value=entry?.sec5_other||'';
+  $('sec6').value=entry?.sec6||''; $('sec7').value=entry?.sec7||''; $('sec8').value=entry?.sec8||'';
   $('tech_yes').checked=entry?.tech_yes||false; $('tech_no').checked=entry?.tech_no||false;
   renderBidSelect(); autoFillPlan(); computeDurations(); autoFillAllCumulative(); calcActualPct();
 }
 function readForm(){return {date:$('f-date').value||todayISO(), wAm:$('f-w-am').value, wPm:$('f-w-pm').value,
   project:$('f-project').value, contractor:$('f-contractor').value, start:$('f-start').value, end:$('f-end').value, ext:num($('f-ext').value||0),
   pctPlan:$('f-pct-plan').value, pctActual:$('f-pct-actual').value, work:readTable('tbl-work'), mat:readTable('tbl-mat'), labEq:readTable('tbl-lab-eq'),
-  sec5:$('sec5').value, sec6:$('sec6').value, sec7:$('sec7').value, sec8:$('sec8').value, tech_yes:$('tech_yes').checked, tech_no:$('tech_no').checked}}
+  s5_1_yes:$('s5_1_yes').checked, s5_1_no:$('s5_1_no').checked,
+  s5_2_yes:$('s5_2_yes').checked, s5_2_no:$('s5_2_no').checked, s5_2_prog:$('s5_2_prog').checked,
+  s5_3_yes:$('s5_3_yes').checked, s5_3_no:$('s5_3_no').checked,
+  sec5_other:$('sec5_other').value,
+  sec6:$('sec6').value, sec7:$('sec7').value, sec8:$('sec8').value, tech_yes:$('tech_yes').checked, tech_no:$('tech_no').checked}}
 
 // 工期（日曆天）
 function addDays(dateStr, days){const d=new Date(dateStr); d.setDate(d.getDate()+days); return d}
@@ -262,7 +289,7 @@ $('btn-del-month').addEventListener('click',()=>{const m=$('month-filter').value
 $('btn-export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(loadAll(),null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`施工日誌_${todayISO()}.json`; a.click(); URL.revokeObjectURL(url)})
 $('importFile').addEventListener('change',async(e)=>{const f=e.target.files?.[0]; if(!f) return; const txt=await f.text(); try{const data=JSON.parse(txt); if(!data||typeof data!=='object') throw new Error('格式錯誤'); const db=loadAll(); Object.assign(db,data); saveAll(db); alert('匯入完成'); renderList()}catch(err){alert('匯入失敗：'+err.message)} e.target.value=''} )
 
-// 列印（第5、6、7標題為原文）
+// 列印（第5項完整內容、6、7標題原文）
 function box(v){return v?'☑':'□'}
 function buildPrintMonth(month){
   const arr=listEntries(month); if(arr.length===0){alert('本月沒有資料可列印'); return}
@@ -300,8 +327,17 @@ function buildPrintMonth(month){
         <tr><td>${box(it.tech_yes)}有　${box(it.tech_no)}無</td></tr>
       </table>
 
-      <table class="tbl"><tr><th>五、工地職業安全衛生事項之督導、公共環境與安全之維護及其他工地行政事務：</th></tr>
-        <tr><td>${escapeHtml(it.sec5||'').replace(/\n/g,'<br>')}</td></tr></table>
+      <table class="tbl">
+        <tr><th>五、工地職業安全衛生事項之督導、公共環境與安全之維護及其他工地行政事務：</th></tr>
+        <tr><td>
+          （一）施工前檢查事項：<br>
+          &emsp;1. 施工前教育（含工地預防災變及危害告知）： ${box(it.s5_1_yes)}有　${box(it.s5_1_no)}無<br>
+          &emsp;2. 環保衛生清潔是否按環保（或其他需清除）資料及安全衛生教育訓練紀錄： ${box(it.s5_2_yes)}有　${box(it.s5_2_no)}無　${box(it.s5_2_prog)}繼續推動<br>
+          &emsp;3. 檢查第 1 個人防護具： ${box(it.s5_3_yes)}有　${box(it.s5_3_no)}無<br>
+          （二）其他事項：<br>
+          ${escapeHtml(it.sec5_other||'').replace(/\n/g,'<br>')}
+        </td></tr>
+      </table>
 
       <table class="tbl"><tr><th>六、施工取樣試驗紀錄：</th></tr>
         <tr><td>${escapeHtml(it.sec6||'').replace(/\n/g,'<br>')}</td></tr></table>
